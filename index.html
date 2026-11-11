@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Noche de Museos · Ruta 13 nov 2026</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0f14;color:#e8edf3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:820px;margin:0 auto;padding:18px 14px 46px}
+.kicker{font-size:10.5px;letter-spacing:2.4px;color:#f5b942;font-weight:800}
+h1{font-size:27px;line-height:1.12;margin:8px 0 6px;letter-spacing:-.6px;font-weight:800}
+.sub{color:#93a1b1;font-size:13.5px;margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.chip{background:#161e28;border:1px solid #22303f;border-radius:999px;padding:5px 11px;font-size:11.5px;color:#c2cedb}
+.chip b{color:#f5b942;font-weight:800}
+.card{background:#131a22;border:1px solid #22303f;border-radius:14px;padding:15px 14px;margin:14px 0}
+h2{font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:#93a1b1;margin:0 0 12px;font-weight:800}
+.hint{font-size:11.5px;color:#8b98a7;margin:-4px 0 10px}
+#map{height:66vh;min-height:430px;border-radius:10px;overflow:hidden;background:#1a2430;z-index:1}
+#map2{height:260px;border-radius:10px;overflow:hidden;background:#1a2430;z-index:1}
+.leaflet-container{font-family:inherit}
+.mk{position:relative}
+.pnum{position:absolute;width:27px;height:27px;border-radius:50%;background:#f5b942;color:#12161c;font-weight:900;font-size:12.5px;display:flex;align-items:center;justify-content:center;border:3px solid #fff;box-shadow:0 3px 9px rgba(0,0,0,.5);transform:translate(-50%,-50%)}
+.pnum.inicio{background:#e8edf3}
+.pnum.metro{background:#12a150;color:#fff}
+.pnum.fin{background:#e0453e;color:#fff}
+.pnum.small{width:11px;height:11px;font-size:0;border-width:2px;background:#0b0f14}
+.plbl{position:absolute;white-space:nowrap;background:rgba(11,15,20,.93);color:#fff;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:800;border:1px solid #33465a;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.lp-r{left:19px;top:-30px}
+.lp-l{right:19px;top:-30px}
+.lp-b{left:50%;transform:translateX(-50%);top:14px}
+.lp-t{left:50%;transform:translateX(-50%);bottom:16px;top:auto}
+.leaflet-popup-content-wrapper{background:#131a22;color:#e8edf3;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.5)}
+.leaflet-popup-tip{background:#131a22}
+.leaflet-popup-content{margin:12px 14px;font-size:12.5px;line-height:1.45}
+.pp h4{margin:0 0 3px;font-size:14px;color:#fff}
+.pp .dir{color:#93a1b1;font-size:11.5px;margin:0 0 6px}
+.pp .hr{color:#f5b942;font-weight:800;font-size:11.5px;margin:0 0 6px}
+.pp p{margin:0;color:#c2cedb}
+.leaflet-tooltip.leglbl{background:rgba(11,15,20,.92);border:1px solid #33465a;color:#e8edf3;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+.leaflet-tooltip.leglbl:before{display:none}
+.legend{display:flex;flex-wrap:wrap;gap:11px;margin-top:11px;font-size:11px;color:#a9b6c4}
+.legend span{display:flex;align-items:center;gap:6px}
+.sw{width:18px;height:4px;border-radius:2px;display:inline-block}
+.item{display:grid;grid-template-columns:44px 1fr;gap:12px;padding-bottom:18px}
+.item:last-child{padding-bottom:0}
+.item .hora{font-size:11px;font-weight:800;color:#f5b942;text-align:right;padding-top:1px}
+.item .body{border-left:2px solid #22303f;padding-left:14px;position:relative}
+.item .body:before{content:"";position:absolute;left:-6px;top:4px;width:9px;height:9px;border-radius:50%;background:#f5b942;border:2px solid #131a22}
+.item.metro .body:before{background:#12a150}
+.item.bus .body:before{background:#f59e0b}
+.item.walk .body:before{background:#64748b}
+.item.fin .body:before{background:#e0453e}
+h3{font-size:15px;margin:0 0 2px;font-weight:700;letter-spacing:-.2px}
+.meta{font-size:11.5px;color:#8b98a7;margin:0}
+.body p{font-size:13px;margin:7px 0 0;color:#c8d3df}
+.leg{background:#0e141b;border:1px solid #1e2a37;border-radius:9px;padding:9px 11px;font-size:12.5px;color:#b6c3d1;margin-top:9px}
+.leg b{color:#e8edf3}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;color:#8b98a7;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.9px;border-bottom:1px solid #22303f;padding:7px 5px}
+td{padding:8px 5px;border-bottom:1px solid #1a2430;color:#cfd9e4}
+td:nth-child(2){color:#8b98a7;font-size:11.5px;white-space:nowrap}
+td:last-child{text-align:right;white-space:nowrap;color:#f5b942;font-weight:800}
+.alert{background:#1a2029;border:1px solid #5c3a17;border-left:4px solid #f59e0b;border-radius:12px;padding:14px 15px;margin:14px 0}
+.alert h3{color:#ffc971;font-size:14px;margin:0 0 7px}
+.alert p{font-size:12.8px;color:#cfd9e4;margin:6px 0 0}
+details{background:#131a22;border:1px solid #22303f;border-radius:14px;padding:14px 15px;margin:14px 0}
+summary{cursor:pointer;font-size:13.5px;font-weight:800;color:#e8edf3;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary:before{content:"＋ ";color:#8b98a7}
+details[open] summary:before{content:"− "}
+details p{font-size:12.6px;color:#c2cedb;margin:9px 0 0}
+ul.check{list-style:none;padding:0;margin:0}
+ul.check li{font-size:13px;color:#c8d3df;padding:5px 0 5px 24px;position:relative}
+ul.check li:before{content:"✓";position:absolute;left:0;color:#12a150;font-weight:800}
+footer{margin-top:22px;font-size:10.5px;color:#64717f;line-height:1.6}
+.tot{display:flex;justify-content:space-between;border-top:1px solid #22303f;margin-top:4px;padding-top:9px;font-size:12px;color:#8b98a7}
+.tot b{color:#f5b942}
+#fallback{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">NOCHE DE MUSEOS · VIERNES 13 DE NOVIEMBRE 2026</div>
+  <h1>De Diagonal Paraguay a Mirador</h1>
+  <p class="sub">Tres museos, un parque iluminado y vuelta en Metro directo.</p>
+  <div class="chips">
+    <span class="chip"><b>3</b> museos</span>
+    <span class="chip"><b>6 h 41</b> de ruta</span>
+    <span class="chip"><b>33,3 km</b> recorridos</span>
+    <span class="chip">llegas <b>22:41</b> a Mirador</span>
+  </div>
+
+  <div class="card">
+    <h2>Mapa de la ruta</h2>
+    <p class="hint">Toca cada punto para ver la dirección exacta y el horario. Pellizca o usa + / − para acercar.</p>
+    <div id="map"></div>
+    <div class="legend">
+      <span><i class="sw" style="background:#12a150"></i> Metro L5</span>
+      <span><i class="sw" style="background:#7d2b8c"></i> Metro L6</span>
+      <span><i class="sw" style="background:#f59e0b"></i> Bus 109</span>
+      <span><i class="sw" style="background:#8b98a7"></i> A pie</span>
+    </div>
+    <div id="fallback">
+      <p class="hint" style="margin-top:12px">No se pudo cargar el mapa interactivo. Acá va la versión fija:</p>
+      <img src="https://litter.catbox.moe/dqdf9e.jpg" style="width:100%;border-radius:10px" alt="Mapa de la ruta">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Quinta Normal en detalle</h2>
+    <p class="hint">Los tres puntos del parque están a menos de 10 minutos caminando entre sí.</p>
+    <div id="map2"></div>
+  </div>
+
+  <div class="card">
+    <h2>Paso a paso</h2>
+
+    <div class="item walk">
+      <div class="hora">16:00</div>
+      <div class="body">
+        <h3>Sales de Diagonal Paraguay 265</h3>
+        <p class="meta">Caminata 10 min · 580 m</p>
+        <p>Al Metro Parque Bustamante (L5), la estación más cercana: sigues por Diagonal Paraguay y doblas en Av. Bustamante.</p>
+      </div>
+    </div>
+
+    <div class="item metro">
+      <div class="hora">16:11</div>
+      <div class="body">
+        <h3>Metro L5 + L6 hacia Cerrillos</h3>
+        <p class="meta">19 min en tren · 1 transbordo · llegas 16:40</p>
+        <div class="leg">🚇 <b>L5</b> Parque Bustamante → Ñuble (4 min, 3 paradas)<br>🔄 Transbordo en Ñuble (4 min)<br>🚇 <b>L6</b> Ñuble → Cerrillos (11 min, 5 paradas)<br>🚶 10 min a pie desde la estación (640 m)</div>
+        <p>Llegas 20 minutos antes de la apertura: alcanzas a ver los aviones del frontis sin fila.</p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="hora">17:00</div>
+      <div class="body">
+        <h3>Museo Nacional Aeronáutico y del Espacio</h3>
+        <p class="meta">2 h 10 min · Av. Pedro Aguirre Cerda 5000, Cerrillos · sin inscripción</p>
+        <p><b>Recreación de la II Guerra Mundial</b> (Living History Chile), <b>maquetas a escala de IPMS Chile</b> y <b>maquetas gigantes de la FACH</b>. Todo entre 17:00 y 21:30.</p>
+      </div>
+    </div>
+
+    <div class="item bus">
+      <div class="hora">19:10</div>
+      <div class="body">
+        <h3>Bus 109 directo a Quinta Normal</h3>
+        <p class="meta">41 min puerta a puerta · llegas 19:59</p>
+        <div class="leg">🚶 7 min al paradero (M) Cerrillos (440 m)<br>🚌 <b>109</b> hacia Renca · 23 min · bajas en <b>Hospital San Juan de Dios</b><br>🚶 11 min al parque (780 m)</div>
+        <p>Si no pasa, la alternativa es L6 → Franklin → L2 → Santa Ana → L5 → Quinta Normal (47 min).</p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="hora">20:00</div>
+      <div class="body">
+        <h3>Museo Nacional de Historia Natural</h3>
+        <p class="meta">1 h · Interior Parque Quinta Normal · hasta 23:00</p>
+        <p>A las 20:00 parte el <b>mapping en el Salón Central</b>. Además: taxidermia en vivo, personajes históricos y el sarcófago de Ta-Sherit-Min.</p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="hora">21:05</div>
+      <div class="body">
+        <h3>Museo Ferroviario</h3>
+        <p class="meta">55 min · 5 min a pie · iluminación 20:30–23:00</p>
+        <p>Circuito nocturno por los jardines: locomotoras, el <b>Coche Presidencial</b>, el coche motor <b>NS-74</b> del Metro y cuatro coches del Ferrocarril de Antofagasta a Bolivia.</p>
+      </div>
+    </div>
+
+    <div class="item fin">
+      <div class="hora">22:05</div>
+      <div class="body">
+        <h3>Vuelta a Mirador, L5 directo</h3>
+        <p class="meta">36 min · sin transbordos · llegas 22:41</p>
+        <div class="leg">🚶 10 min a Metro Quinta Normal (700 m)<br>🚇 <b>L5</b> Quinta Normal → Mirador (23 min, directo)</div>
+        <p>Sales del parque 22:05 y a las 22:41 estás en Mirador, con margen real antes del cierre.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Distancias y tiempos</h2>
+    <table>
+      <tr><th>Tramo</th><th>Medio</th><th>Dist.</th><th>Tiempo</th></tr>
+      <tr><td>Casa → M. Parque Bustamante</td><td>a pie</td><td>580 m</td><td>10 min</td></tr>
+      <tr><td>P. Bustamante → M. Cerrillos</td><td>L5 + L6</td><td>9,8 km</td><td>19 min</td></tr>
+      <tr><td>M. Cerrillos → Museo Aeronáutico</td><td>a pie</td><td>640 m</td><td>10 min</td></tr>
+      <tr><td>Museo → paradero Cerrillos</td><td>a pie</td><td>440 m</td><td>7 min</td></tr>
+      <tr><td>Paradero → Hosp. San Juan de Dios</td><td>bus 109</td><td>7,0 km</td><td>23 min</td></tr>
+      <tr><td>Paradero → Parque Quinta Normal</td><td>a pie</td><td>780 m</td><td>11 min</td></tr>
+      <tr><td>MNHN → Museo Ferroviario</td><td>a pie</td><td>250 m</td><td>5 min</td></tr>
+      <tr><td>Parque → M. Quinta Normal</td><td>a pie</td><td>700 m</td><td>10 min</td></tr>
+      <tr><td>M. Quinta Normal → M. Mirador</td><td>L5</td><td>13,2 km</td><td>23 min</td></tr>
+    </table>
+    <div class="tot"><span>Recorrido total</span><b>33,3 km · 6 h 41 min</b></div>
+  </div>
+
+  <div class="alert">
+    <h3>⚠️ Las dos cosas que te pueden arruinar la noche</h3>
+    <p><b>El Metro cierra a las 23:00.</b> El último tren cómodo desde Quinta Normal sale 22:30 y te deja en Mirador 22:53. Si te quedas al show <b>“Océano: los peces inundan la calle”</b> (22:20–23:00), ya no hay Metro: 25–30 min en Uber/taxi.</p>
+    <p><b>La CChC queda fuera a propósito.</b> Apoquindo 6750: 51 min hasta el museo aeronáutico y el piso 22 funciona por grupos con cupos limitados.</p>
+  </div>
+
+  <details>
+    <summary>Si igual quieres la CChC: la variante apretada</summary>
+    <p>16:00 → 16:30 CChC (L1 a Hernando de Magallanes, abre 17:00).<br>
+    17:00–17:45 recorrido y amortiguador del piso 22.<br>
+    18:45–20:00 Museo Aeronáutico (solo 1 h 15).<br>
+    20:50–21:45 Ferroviario · 21:45–22:20 MNHN.<br>
+    22:30 L5 → <b>22:53 Mirador</b>.</p>
+  </details>
+
+  <div class="card">
+    <h2>Antes de salir</h2>
+    <ul class="check">
+      <li>Tarjeta BIP con carga (Metro y bus 109 en la misma tarjeta)</li>
+      <li>Batería externa: son 6 horas y el mapa lo vas a mirar mucho</li>
+      <li>Chaqueta: el museo aeronáutico tiene sectores al aire libre</li>
+      <li>Zapatillas cómodas: ~4 km a pie repartidos en la noche</li>
+      <li>El 109 pasa cada 15–20 min: si lo pierdes, tomas el siguiente</li>
+    </ul>
+  </div>
+
+  <footer>
+    Horarios: nochedemuseos.cl (fichas del 13 de noviembre de 2026). Rutas y tiempos: datos GTFS del transporte público de Santiago. Cartografía: © OpenStreetMap contributors / Esri. Trazado referencial.
+  </footer>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const D = {"points":{"inicio":[-33.4418,-70.6369],"pb":[-33.442825,-70.63209],"museo":[-33.4872957,-70.6963537],"mnhn":[-33.4420333,-70.681739],"ferro":[-33.4430223,-70.6855674],"qn":[-33.440395,-70.68044],"mirador":[-33.51309,-70.60621]},"walk1":[[-33.4418,-70.6369],[-33.442825,-70.63209]],"l5a":[[-33.442825,-70.63208999999999],[-33.446968,-70.630516],[-33.453545,-70.62884499999998],[-33.467308,-70.62485]],"l6":[[-33.467308,-70.62485],[-33.476659999999995,-70.64236],[-33.47677,-70.64915500000001],[-33.478477,-70.664986],[-33.477695,-70.68096],[-33.483436999999995,-70.69474]],"l5b":[[-33.440395,-70.68043999999999],[-33.43830500000001,-70.65991],[-33.43742399999999,-70.65070999999999],[-33.436436,-70.64424000000001],[-33.437636999999995,-70.63359],[-33.442825,-70.63208999999999],[-33.453545,-70.62884499999998],[-33.467308,-70.62485],[-33.478073,-70.62218999999999],[-33.49192,-70.61749],[-33.498833000000005,-70.61576],[-33.51309,-70.60621]],"bus":[[-33.486326,-70.697911],[-33.486288,-70.697955],[-33.486245,-70.698007],[-33.486242,-70.698011],[-33.486183,-70.69808],[-33.485574,-70.69747],[-33.48522,-70.697108],[-33.4852,-70.697089],[-33.485043,-70.696935],[-33.484956,-70.69685],[-33.484748,-70.696639],[-33.484348,-70.696234],[-33.483897,-70.695801],[-33.483686,-70.695594],[-33.483643,-70.695551],[-33.483599,-70.695511],[-33.483527,-70.695454],[-33.483414,-70.695372],[-33.483309,-70.695297],[-33.483228,-70.695244],[-33.483156,-70.695204],[-33.482971,-70.694861],[-33.482954,-70.694832],[-33.482932,-70.69479],[-33.482707,-70.694359],[-33.482472,-70.693921],[-33.482232,-70.693442],[-33.482202,-70.693384],[-33.482171,-70.69333],[-33.482144,-70.693275],[-33.481692,-70.692412],[-33.481667,-70.692365],[-33.481636,-70.692307],[-33.481101,-70.691284],[-33.480569,-70.690267],[-33.480538,-70.690209],[-33.480305,-70.689764],[-33.480032,-70.689242],[-33.479625,-70.688463],[-33.479523,-70.688268],[-33.479501,-70.688227],[-33.479012,-70.687304],[-33.478986,-70.687255],[-33.478953,-70.687193],[-33.478542,-70.686411],[-33.478454,-70.686234],[-33.478395,-70.686114],[-33.478343,-70.686002],[-33.478319,-70.68595],[-33.4783,-70.685896],[-33.478284,-70.685841],[-33.478271,-70.685786],[-33.478257,-70.685688],[-33.478247,-70.685559],[-33.478253,-70.685277],[-33.478306,-70.68506],[-33.478332,-70.684952],[-33.478354,-70.684884],[-33.478381,-70.68482],[-33.478419,-70.684763],[-33.478451,-70.684731],[-33.478486,-70.684706],[-33.478522,-70.684689],[-33.47856,-70.684679],[-33.478595,-70.684677],[-33.478638,-70.684678],[-33.478684,-70.684685],[-33.478736,-70.6847],[-33.478812,-70.68473],[-33.478857,-70.684754],[-33.478888,-70.684773],[-33.478908,-70.684793],[-33.478925,-70.68482],[-33.478938,-70.68485],[-33.478948,-70.684886],[-33.478955,-70.684924],[-33.478954,-70.684965],[-33.478947,-70.68501],[-33.47893,-70.685049],[-33.478911,-70.68508],[-33.478886,-70.685106],[-33.478848,-70.685131],[-33.478806,-70.685154],[-33.478769,-70.685169],[-33.478641,-70.685206],[-33.478364,-70.685264],[-33.478002,-70.685348],[-33.477905,-70.685375],[-33.477074,-70.685605],[-33.477046,-70.685614],[-33.476965,-70.68564],[-33.476834,-70.685692],[-33.476769,-70.685721],[-33.476708,-70.68575],[-33.47662,-70.685796],[-33.476505,-70.685869],[-33.476382,-70.685955],[-33.476263,-70.686045],[-33.476061,-70.686206],[-33.475922,-70.686322],[-33.475778,-70.686443],[-33.475649,-70.686543],[-33.475541,-70.686624],[-33.47543,-70.686696],[-33.475321,-70.686765],[-33.475115,-70.686879],[-33.474878,-70.687012],[-33.474148,-70.687414],[-33.473875,-70.687562],[-33.4736,-70.687704],[-33.473449,-70.687773],[-33.473294,-70.687832],[-33.47316,-70.687874],[-33.473024,-70.687909],[-33.472887,-70.687935],[-33.472745,-70.687958],[-33.472587,-70.687999],[-33.472465,-70.688025],[-33.472365,-70.688038],[-33.472226,-70.688049],[-33.472057,-70.68806],[-33.471976,-70.688066],[-33.471882,-70.688077],[-33.471749,-70.6881],[-33.471618,-70.688131],[-33.471271,-70.688131],[-33.470761,-70.688129],[-33.470192,-70.688127],[-33.469741,-70.688125],[-33.469061,-70.688127],[-33.468787,-70.688131],[-33.46858,-70.688133],[-33.468363,-70.688139],[-33.468109,-70.688153],[-33.467866,-70.688161],[-33.467561,-70.688168],[-33.4672,-70.688168],[-33.464353,-70.688146],[-33.463731,-70.688154],[-33.463526,-70.68816],[-33.463322,-70.688171],[-33.463117,-70.688187],[-33.462927,-70.688206],[-33.462592,-70.688239],[-33.462234,-70.688274],[-33.461937,-70.688318],[-33.461569,-70.688374],[-33.461334,-70.688423],[-33.461092,-70.688476],[-33.460843,-70.688547],[-33.460232,-70.688729],[-33.458993,-70.689128],[-33.45788,-70.689482],[-33.45742,-70.689611],[-33.457321,-70.689613],[-33.457223,-70.689624],[-33.457146,-70.689638],[-33.457071,-70.689658],[-33.456345,-70.689862],[-33.456257,-70.689883],[-33.456168,-70.689901],[-33.456081,-70.689915],[-33.455993,-70.689926],[-33.45583,-70.689952],[-33.455669,-70.689983],[-33.455343,-70.690094],[-33.455218,-70.690137],[-33.455159,-70.690157],[-33.454682,-70.690318],[-33.454157,-70.690494],[-33.454132,-70.690502],[-33.453917,-70.690573],[-33.453781,-70.690622],[-33.453692,-70.690653],[-33.453583,-70.690693],[-33.453353,-70.690775],[-33.45331,-70.690789],[-33.452338,-70.691114],[-33.451706,-70.691323],[-33.451558,-70.691376],[-33.451529,-70.691387],[-33.451422,-70.691433],[-33.451337,-70.69147],[-33.451263,-70.691507],[-33.451208,-70.69153],[-33.451147,-70.691555],[-33.451082,-70.69158],[-33.451049,-70.691592],[-33.451002,-70.691608],[-33.45053,-70.691764],[-33.4503,-70.691832],[-33.450067,-70.69189],[-33.449889,-70.691928],[-33.44971,-70.691959],[-33.44953,-70.691985],[-33.449377,-70.692003],[-33.449152,-70.692023],[-33.448719,-70.692045],[-33.448542,-70.692056],[-33.448362,-70.692057],[-33.448187,-70.692058],[-33.448036,-70.69205],[-33.447887,-70.69204],[-33.447291,-70.69199],[-33.445695,-70.691854],[-33.445427,-70.691834],[-33.445158,-70.691824],[-33.445024,-70.691823],[-33.444765,-70.69183],[-33.444635,-70.691835],[-33.444586,-70.691836],[-33.444522,-70.691837],[-33.444521,-70.691788],[-33.444521,-70.691769],[-33.444516,-70.691572],[-33.4445,-70.691341],[-33.444491,-70.691252],[-33.444466,-70.691078],[-33.444451,-70.690981],[-33.444439,-70.690898],[-33.444414,-70.690689],[-33.444386,-70.690083],[-33.44438,-70.689962],[-33.444352,-70.689337],[-33.444334,-70.688948],[-33.444312,-70.688478],[-33.444292,-70.688039],[-33.444264,-70.687431],[-33.444232,-70.686741],[-33.444179,-70.685587],[-33.444195,-70.685521],[-33.444201,-70.685468],[-33.444203,-70.685334],[-33.444198,-70.685228],[-33.44416,-70.684537],[-33.444147,-70.684472],[-33.444118,-70.684369],[-33.444111,-70.684239],[-33.444104,-70.684126],[-33.44375,-70.684151],[-33.441954,-70.684341],[-33.441605,-70.68437],[-33.441575,-70.684093],[-33.441454,-70.683027],[-33.441448,-70.682944],[-33.441424,-70.682605],[-33.441417,-70.682507],[-33.441386,-70.682071],[-33.44137,-70.681846],[-33.441367,-70.681804],[-33.441365,-70.681769],[-33.441349,-70.681546],[-33.441315,-70.681065],[-33.441348,-70.681063],[-33.44151,-70.681085],[-33.441674,-70.68108],[-33.441957,-70.681053]]};
+
+function init(){
+  const map = L.map('map', {zoomControl:true, scrollWheelZoom:true});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom:19, attribution:'Tiles &copy; Esri &mdash; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const P = D.points;
+
+  function pin(key, num, cls, label, lpos){
+    const ll = P[key];
+    const ico = L.divIcon({className:'', html:'<div class="mk"><div class="pnum '+cls+'">'+(num||'')+'</div>'+
+      (label?'<div class="plbl '+lpos+'">'+label+'</div>':'')+'</div>',
+      iconSize:[0,0], iconAnchor:[0,0]});
+    return L.marker(ll, {icon:ico, title:label||key}).addTo(map);
+  }
+
+  const pop = (t,dir,hr,txt)=>'<div class="pp"><h4>'+t+'</h4><div class="dir">'+dir+'</div><div class="hr">'+hr+'</div><p>'+txt+'</p></div>';
+
+  pin('inicio',1,'inicio','Diagonal Paraguay 265','lp-r')
+    .bindPopup(pop('Punto de partida','Diagonal Paraguay 265, Santiago Centro','16:00','Sales caminando al Metro Parque Bustamante (10 min, 580 m).'));
+  pin('pb','','small','','')
+    .bindPopup(pop('Metro Parque Bustamante','Av. Bustamante, Providencia · Línea 5','16:11','Subes a L5 hacia Ñuble, transbordas a L6 y sigues a Cerrillos.'));
+  pin('museo',2,'','Museo Aeronáutico','lp-r')
+    .bindPopup(pop('Museo Nacional Aeronáutico y del Espacio','Av. Pedro Aguirre Cerda 5000, Cerrillos','17:00 – 21:30','Recreación II Guerra Mundial, maquetas IPMS y maquetas gigantes de la FACH. Sin inscripción.'));
+  pin('mnhn',3,'','Quinta Normal','lp-b')
+    .bindPopup(pop('Parque Quinta Normal','Interior del parque, Av. Matucana','19:59 – 22:05','MNHN (mapping 20:00) y Museo Ferroviario iluminado (desde 20:30).'));
+  pin('mirador',4,'fin','Metro Mirador','lp-l')
+    .bindPopup(pop('Metro Mirador','Av. Vicuña Mackenna, La Florida · Línea 5','22:41','Fin de la ruta. L5 directo desde Quinta Normal, sin transbordos.'));
+
+  const line = (pts,color,dash,w) => L.polyline(pts,{color:color,weight:w||5,opacity:.95,dashArray:dash||null,lineJoin:'round',lineCap:'round'}).addTo(map);
+  const tag = (layer,txt) => layer.bindTooltip(txt,{permanent:true,direction:'center',className:'leglbl'});
+
+  tag(line(D.walk1,'#8b98a7','6 6',3),'10 min a pie');
+  tag(line(D.l5a,'#12a150',null,5),'L5 + L6 · 29 min');
+  tag(line(D.l6,'#7d2b8c',null,5),'L6');
+  tag(line(D.bus,'#f59e0b',null,5),'Bus 109 · 41 min');
+  tag(line(D.l5b,'#12a150',null,5),'L5 directo · 36 min');
+
+  map.fitBounds(L.featureGroup([L.polyline(D.l5b),L.polyline(D.bus),L.polyline(D.l5a),L.polyline(D.l6)]).getBounds(),{padding:[28,28]});
+
+  // mapa detalle Quinta Normal
+  const m2 = L.map('map2',{zoomControl:true, scrollWheelZoom:true});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom:19, attribution:'© Esri'
+  }).addTo(m2);
+  const p2 = (k,num,cls,label,pos)=>L.marker(P[k],{icon:L.divIcon({className:'',html:'<div class="mk"><div class="pnum '+cls+'">'+num+'</div><div class="plbl '+pos+'">'+label+'</div></div>',iconSize:[0,0],iconAnchor:[0,0]})}).addTo(m2);
+  p2('mnhn','A','','MNHN 20:00','lp-t')
+    .bindPopup(pop('Museo Nacional de Historia Natural','Interior Parque Quinta Normal','20:00 – 21:00','Mapping en el Salón Central, taxidermia en vivo y personajes históricos.'));
+  p2('ferro','B','','Ferroviario 21:05','lp-b')
+    .bindPopup(pop('Museo Ferroviario','Interior Parque Quinta Normal, Av. Las Palmeras','21:05 – 22:00','Iluminación patrimonial: locomotoras, Coche Presidencial y NS-74.'));
+  p2('qn','C','metro','Metro Quinta Normal','lp-r')
+    .bindPopup(pop('Metro Quinta Normal','Av. Matucana, Quinta Normal · Línea 5','22:18','Tren directo a Mirador, 23 minutos.'));
+
+  L.polyline([P.mnhn,P.ferro,P.qn],{color:'#8b98a7',weight:3,dashArray:'6 6'}).addTo(m2);
+  m2.fitBounds(L.latLngBounds([P.mnhn,P.ferro,P.qn]),{padding:[50,40],maxZoom:16});
+  setTimeout(()=>{map.invalidateSize();m2.invalidateSize();},600);
+}
+if (typeof L === 'undefined') { document.getElementById('map').style.display='none'; document.getElementById('map2').style.display='none'; document.getElementById('fallback').style.display='block'; }
+else { init(); }
+</script>
+</body>
+</html>
