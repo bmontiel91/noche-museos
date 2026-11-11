@@ -270,11 +270,21 @@ function init(){
   const line = (pts,color,dash,w) => L.polyline(pts,{color:color,weight:w||5,opacity:.95,dashArray:dash||null,lineJoin:'round',lineCap:'round'}).addTo(map);
   const tag = (layer,txt) => layer.bindTooltip(txt,{permanent:true,direction:'center',className:'leglbl'});
 
-  tag(line(D.walk1,'#8b98a7','6 6',3),'10 min a pie');
-  tag(line(D.l5a,'#12a150',null,5),'L5 + L6 · 29 min');
-  tag(line(D.l6,'#7d2b8c',null,5),'L6');
-  tag(line(D.bus,'#f59e0b',null,5),'Bus 109 · 41 min');
-  tag(line(D.l5b,'#12a150',null,5),'L5 directo · 36 min');
+  const inv = L.divIcon({className:'',html:'<div></div>',iconSize:[0,0],iconAnchor:[0,0]});
+  const tagAt = (ll,txt)=>L.marker(ll,{icon:inv,interactive:false}).addTo(map)
+      .bindTooltip(txt,{permanent:true,direction:'center',className:'leglbl'});
+
+  line(D.walk1,'#8b98a7','6 6',3);
+  line(D.l5a,'#12a150',null,5);
+  line(D.l6,'#7d2b8c',null,5);
+  line(D.bus,'#f59e0b',null,5);
+  line(D.l5b,'#12a150',null,5);
+
+  tagAt(D.walk1[0],'10 min a pie');
+  tagAt([-33.4469,-70.6305],'L5 + L6 · 29 min');
+  tagAt([-33.4764,-70.6491],'L6');
+  tagAt(D.bus[Math.floor(D.bus.length/2)],'Bus 109 · 41 min');
+  tagAt([-33.4988,-70.6158],'L5 directo · 36 min');
 
   map.fitBounds(L.featureGroup([L.polyline(D.l5b),L.polyline(D.bus),L.polyline(D.l5a),L.polyline(D.l6)]).getBounds(),{padding:[28,28]});
 
